@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.edit
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.text.TextUtils
 import androidx.activity.ComponentActivity
@@ -16,16 +17,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,6 +43,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.github.kanataidarov.ytskipper.service.ScreenClickerService
 import com.github.kanataidarov.ytskipper.ui.theme.YTSkipperTheme
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,11 +75,23 @@ fun ScreenClickerScreen(modifier: Modifier = Modifier) {
         )
     }
 
-    var isServiceEnabled by remember { mutableStateOf(false) }
+    var cooldownSeconds by remember {
+        mutableFloatStateOf(
+            prefs.getInt(ScreenClickerService.KEY_COOLDOWN_SECONDS, ScreenClickerService.DEFAULT_COOLDOWN_SECONDS).toFloat()
+        )
+    }
+
+    var isAccessibilityEnabled by remember { mutableStateOf(false) }
+    var isPaused by remember {
+        mutableStateOf(prefs.getBoolean(ScreenClickerService.KEY_PAUSED, false))
+    }
+    var isBatteryOptimized by remember { mutableStateOf(true) }
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            isServiceEnabled = isAccessibilityServiceEnabled(context)
+            isAccessibilityEnabled = isAccessibilityServiceEnabled(context)
+            isPaused = prefs.getBoolean(ScreenClickerService.KEY_PAUSED, false)
+            isBatteryOptimized = isBatteryOptimizationEnabled(context)
         }
     }
 
@@ -103,10 +120,21 @@ fun ScreenClickerScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        val isRunning = isAccessibilityEnabled && !isPaused
+
         Card(
+            onClick = {
+                if (!isAccessibilityEnabled) {
+                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                } else {
+                    val newPaused = !isPaused
+                    isPaused = newPaused
+                    prefs.edit { putBoolean(ScreenClickerService.KEY_PAUSED, newPaused) }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (isServiceEnabled)
+                containerColor = if (isRunning)
                     MaterialTheme.colorScheme.primaryContainer
                 else
                     MaterialTheme.colorScheme.errorContainer
@@ -114,22 +142,31 @@ fun ScreenClickerScreen(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = if (isServiceEnabled) "Service is ACTIVE" else "Service is INACTIVE",
+                    text = when {
+                        !isAccessibilityEnabled -> "Service is INACTIVE"
+                        isPaused -> "Service is PAUSED"
+                        else -> "Service is ACTIVE"
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isServiceEnabled)
+                    color = if (isRunning)
                         MaterialTheme.colorScheme.onPrimaryContainer
                     else
                         MaterialTheme.colorScheme.onErrorContainer
                 )
-                if (!isServiceEnabled) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Enable the accessibility service in Settings to start.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = when {
+                        !isAccessibilityEnabled -> "Tap to enable in Accessibility Settings."
+                        isPaused -> "Tap to resume."
+                        else -> "Tap to pause."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isRunning)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onErrorContainer
+                )
             }
         }
 
@@ -146,6 +183,33 @@ fun ScreenClickerScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Cooldown after click: ${cooldownSeconds.toInt()}s",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Slider(
+            value = cooldownSeconds,
+            onValueChange = { cooldownSeconds = it },
+            onValueChangeFinished = {
+                prefs.edit { putInt(ScreenClickerService.KEY_COOLDOWN_SECONDS, cooldownSeconds.toInt()) }
+            },
+            valueRange = 0f..60f,
+            steps = 59,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("0s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("60s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
@@ -155,8 +219,45 @@ fun ScreenClickerScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = if (isServiceEnabled) "Open Accessibility Settings" else "Enable Service in Settings"
+                text = if (isAccessibilityEnabled) "Open Accessibility Settings" else "Enable Service in Settings"
             )
+        }
+
+        if (isBatteryOptimized) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Battery Optimization Active",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "For best performance, disable battery optimization for this app.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    requestIgnoreBatteryOptimizations(context)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Disable Battery Optimization")
+            }
         }
     }
 }
@@ -177,4 +278,27 @@ private fun isAccessibilityServiceEnabled(context: Context): Boolean {
         }
     }
     return false
+}
+
+private fun isBatteryOptimizationEnabled(context: Context): Boolean {
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    return !powerManager.isIgnoringBatteryOptimizations(context.packageName)
+}
+
+@Suppress("BatteryLife")
+private fun requestIgnoreBatteryOptimizations(context: Context) {
+    try {
+        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            data = "package:${context.packageName}".toUri()
+        }
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        // If direct request fails, open battery optimization settings
+        try {
+            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            // Ignore if both fail
+        }
+    }
 }
