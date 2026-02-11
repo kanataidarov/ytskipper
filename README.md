@@ -1,155 +1,154 @@
-<div align= "center">
+# YT Skipper
 
-⭐ **If you like this project, please star the repository!** ⭐ <br>
-------- 👇 **Template Demo Below** 👇 --------
+An Android accessibility service that automatically taps on-screen elements matching user-defined text. Useful for skipping YouTube ads and other automated interactions.
 
-<hr>
-</div>
 
-<div align="center">
-<a href="https://github.com/Sumonta056/FixHub-Issue-Tracker-Website" target="blank">
-<img src="./assets/chatBot.png" width="90" alt="Logo" />
-</a>
 
-<h2> Project Name : Readme Template </h2>
+## Overview
 
-![](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
-![](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-![](https://img.shields.io/badge/Radix_UI-6200EE?style=for-the-badge&logo=radix-ui&logoColor=white)
+YT Skipper is a lightweight Android utility that uses the Accessibility Service API to monitor screen content and automatically click on UI elements containing specific text. Originally designed for skipping YouTube ads, it can be configured to interact with any app based on visible text triggers.
 
-<img src ="./assets/bg-3.webp" width="80%">
+## Features
 
-</div>
+- **Auto-Click Matching Text**: Automatically taps on UI elements containing your configured target text
+- **Customizable Target**: Set any text string to search for (default: "Skip Ad")
+- **Accessibility Service**: Runs in the background using Android's accessibility API
+- **Simple UI**: Clean Jetpack Compose interface with Material3 design
+- **Service Status Indicator**: Visual indicator showing whether the service is active
+- **Lightweight**: Minimal resource usage and battery impact
 
-## 💡 Overview
+## Tech Stack
 
-FixHub is a powerful and intuitive issue tracker built using Next.js and SQL, designed to streamline bug management and project tracking. With a focus on efficiency and user-friendliness, FixHub allows for seamless creation, viewing, updating, and deletion of issues. Key features include:
+- **Kotlin**: Primary programming language
+- **Jetpack Compose**: Modern declarative UI toolkit
+- **Material3**: Latest Material Design components
+- **AccessibilityService**: Android API for interacting with UI elements
+- **Gradle**: Build automation with Kotlin DSL
 
-## ✨ Features
+## Prerequisites
 
-- **🔐 User Authentication:** Secure login with personalized access levels.
-- **🌍 Issue Management:** Create, view, update, and delete issues; assign tasks to team members.
-- **🔍 Filtering & Sorting:** Advanced options to quickly find and prioritize tasks.
-- **📄 Pagination & Analytics:** Navigate large lists and gain insights with charts and dashboards.
-- **🎯 Production Optimization:** Built for speed and reliability in production environments.
-- **🔧 Customization:** Tailor settings and configurations to your needs.
-- **📱 Responsive Design:** Access on any device with adaptive design.
+- **Android Studio** (latest stable version recommended)
+- **Android SDK** with API level 34 or higher
+- **JDK** 11 or higher
+- An Android device or emulator running **Android 14+** (API 34)
 
-Whether you're a solo developer or part of a large team, FixHub is the perfect tool for tracking and resolving issues with ease.🐞
+## Installation
 
-## 👩‍💻 Tech Stack
-
-- **Next.js**: A React framework for building server-side rendering and static web applications.
-- **Auth.js**: Free and open source Authentication for the Web.
-- **Hono**: A lightweight web framework for building server-side applications with TypeScript.
-- **Drizzle ORM**: TypeScript-first ORM for type-safe database access.
-- **React Query**: Data-fetching library for managing server-state in React applications.
-- **Npm Package**: A fast JavaScript runtime that includes a package manager, task runner, and more.
-
-## 📖 Sources and external API's
-
-- [NASA](https://www.nasa.gov) for space exploration and research
-- [National Geographic](https://www.nationalgeographic.com) for nature and science articles
-- [Stack Overflow](https://stackoverflow.com) for programming questions and answers
-- [Wikipedia](https://www.wikipedia.org) for a wide range of information on various topics
-
-## 📦 Getting Started
-
-To get a local copy of this project up and running, follow these steps.
-
-### 🚀 Prerequisites
-
-- **Node.js** (v16.x or higher) and **npm** or **yarn**.
-- **Npm** If you prefer using npm for package management and running scripts.
-- **PostgreSQL** (or another supported SQL database).
-
-## 🛠️ Installation
+### Build from Source
 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/sumonta056/readme-template.git
-   cd readme-template
+   git clone https://github.com/kanataidarov/ytskipper.git
+   cd ytskipper
    ```
 
-2. **Install dependencies:**
+2. **Open in Android Studio:**
 
-   Using Npm:
+   - Launch Android Studio
+   - Select "Open an existing project"
+   - Navigate to the cloned directory and open it
+
+3. **Build the project:**
 
    ```bash
-   npm install
+   ./gradlew assembleDebug
    ```
 
-3. **Set up environment variables:**
+   Or use Android Studio: **Build > Make Project** (Ctrl+F9 / Cmd+F9)
 
-   Create a `.env` file in the root directory and add the following variables:
-
-   ```env
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-   #database
-   DATABASE_URL=your_database_url
-   DATABASE_SECRET=your_database_secret
-   DRIZZLE_DATABASE_URL=your_database_url_for_drizzle
-
-   #auth
-   AUTH_SECRET=any_random_secret
-   ```
-
-4. **Run database migrations:**
-
-   Ensure your database is running and then run:
+4. **Install on device:**
 
    ```bash
-   npm run drizzle-kit migrate
+   ./gradlew installDebug
    ```
 
-5. **Start the development server:**
+   Or use Android Studio: **Run > Run 'app'** (Shift+F10 / Ctrl+R)
 
-   ```bash
-   npm run dev
-   ```
+### Install APK Directly
 
-## 📖 Usage
+Download the latest APK from [Releases](../../releases) and install it on your Android device.
 
-### ✔ Running the Website
+> **Note**: You may need to enable "Install from unknown sources" in your device settings.
 
-- **Development mode:** `npm run dev`, `yarn dev`, or `bun dev`.
-- **Production mode:** `npm run build && npm start`, `yarn build && yarn start`, or `bun run build && bun start`.
+## Usage
 
-> Open [http://localhost:3000](http://localhost:3000) to view the app in your browser.
+1. **Launch the app** - Open YT Skipper from your app drawer
 
-### 📃 API Documentation
+2. **Configure target text** - Enter the text you want the app to auto-click (e.g., "Skip Ad", "Skip")
 
-The API documentation for this application is available at [http://localhost:3000/api/docs](http://localhost:3000/api/docs). It details all endpoints and their usage.
+3. **Enable Accessibility Service** - Tap the button to open Accessibility Settings and enable "YT Skipper" service
 
-## 🤝 Contributing
+4. **Grant permissions** - Allow the app to observe and interact with screen content
 
-We welcome contributions to this project. Please follow these steps to contribute:
+5. **Use other apps** - The service will now automatically click matching text when it appears on screen
 
-1. **Fork the repository.**
-2. **Create a new branch** (`git checkout -b feature/your-feature-name`).
-3. **Make your changes** and commit them (`git commit -m 'Add some feature'`).
-4. **Push to the branch** (`git push origin feature/your-feature-name`).
-5. **Open a pull request**.
+## Configuration
 
-Please make sure to update tests as appropriate.
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Target Text | The exact text to search for and click | "Google" |
 
-## 🐛 Issues
+Change the target text at any time from the app's main screen.
 
-If you encounter any issues while using or setting up the project, please check the [Issues]() section to see if it has already been reported. If not, feel free to open a new issue detailing the problem.
+## Project Structure
 
-When reporting an issue, please include:
+```
+ytskipper/
+├── app/
+│   ├── src/main/java/com/github/kanataidarov/ytskipper/
+│   │   ├── MainActivity.kt          # Main UI with Compose
+│   │   ├── ui/theme/                # Material3 theme components
+│   │   │   ├── Color.kt
+│   │   │   ├── Theme.kt
+│   │   │   └── Type.kt
+│   │   └── service/
+│   │       └── ScreenClickerService.kt  # Accessibility service
+│   ├── build.gradle.kts             # App module build config
+│   └── src/main/AndroidManifest.xml # Service declarations
+├── build.gradle.kts                 # Project build config
+├── gradle/libs.versions.toml        # Version catalog
+└── settings.gradle.kts              # Project settings
+```
 
-- A clear and descriptive title.
-- A detailed description of the problem.
-- Steps to reproduce the issue.
-- Any relevant logs or screenshots.
-- The environment in which the issue occurs (OS, browser, Node.js version, etc.).
+## Important Notes
 
-## 📜 License
+- **Accessibility Permission**: This app requires the Accessibility Service permission to function. This is a system-level permission that allows the app to observe and interact with UI elements.
 
-Distributed under the MIT License. See [License](/LICENSE) for more information.
+- **Battery Optimization**: The service may be affected by battery optimization settings. Consider disabling battery optimization for this app if you need consistent performance.
+
+- **Security**: Only grant accessibility permissions to apps you trust. This permission allows extensive interaction with your device.
+
+## Limitations
+
+- Requires Android 14 (API 34) or higher
+- Text matching is exact (case-sensitive)
+- Cannot interact with secure windows (banking apps, payment screens)
+- Some apps may block accessibility services
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m 'Add my feature'`)
+4. Push to the branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
+
+## Issues
+
+If you encounter any issues:
+
+- Check that the accessibility service is enabled in Settings
+- Ensure the target text exactly matches what's displayed on screen
+- Verify your device meets the minimum Android version requirement
+- Report bugs via [GitHub Issues](../../issues)
+
+## License
+
+Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
+
+---
+
+**Disclaimer**: This app is for educational and convenience purposes. Use responsibly and in accordance with the terms of service of apps you interact with.
